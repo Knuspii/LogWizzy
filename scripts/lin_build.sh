@@ -9,16 +9,16 @@ echo "Formatting Go source files..."
 gofmt -s -w ../.
 echo "Formatting done."
 
-echo "Building LogWizard for Windows amd64..."
-CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ../bin/logwizard.exe ../.
+echo "Building LogWizzy for Windows amd64..."
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ../bin/logwizzy.exe ../.
 echo "Windows build succeeded."
 
-echo "Building LogWizard for Linux amd64..."
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../bin/logwizard ../.
+echo "Building LogWizzy for Linux amd64..."
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../bin/logwizzy ../.
 echo "Linux amd64 build succeeded."
 
-echo "Building LogWizard for Linux ARM64..."
-CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ../bin/logwizard-arm64 ../.
+echo "Building LogWizzy for Linux ARM64..."
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ../bin/logwizzy-arm64 ../.
 echo "Linux ARM64 build succeeded."
 
 echo "Tidying up Go modules..."
