@@ -6,3 +6,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/knuspii/logwizard?style=social)](https://github.com/knuspii/logwizard/stargazers)
 
 <h1>LogWizard 🧙</h1>
+
+✨ LogWizard - tame your journalctl madness. 
+
+LogWizard aggregates and groups systemd journal logs, highlights severity with colors, counts repeated messages, and optionally shows full logs for quick monitoring.
