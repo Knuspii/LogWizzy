@@ -7,6 +7,6 @@
 
 <h1>LogWizzy 🧙</h1>
 
-✨ LogWizzy - tame your journalctl madness. 
+✨ LogWizzy — tame your journalctl madness.
 
 LogWizzy aggregates and groups systemd journal logs, highlights severity with colors, counts repeated messages, and optionally shows full logs for quick monitoring.
