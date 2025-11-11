@@ -9,10 +9,6 @@ echo "Formatting Go source files..."
 gofmt -s -w ../.
 echo "Formatting done."
 
-echo "Building LogWizzy for Windows amd64..."
-CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ../bin/logwizzy.exe ../.
-echo "Windows build succeeded."
-
 echo "Building LogWizzy for Linux amd64..."
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../bin/logwizzy ../.
 echo "Linux amd64 build succeeded."
