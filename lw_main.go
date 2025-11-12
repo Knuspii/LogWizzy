@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const Version = "0.2"
+const Version = "0.3"
 
 // MessageGroup represents a group of identical log messages
 // storing sample text, count of occurrences, log level, and timestamps.
@@ -30,7 +30,7 @@ func mapPriority(p string) string {
 	case "0", "emerg", "emergency", "1", "alert", "2", "crit":
 		return "CRIT"
 	case "3", "err", "error":
-		return "ERRO"
+		return "CRIT"
 	case "4", "warn", "warning":
 		return "WARN"
 	case "5", "notice", "info":
@@ -104,8 +104,8 @@ func main() {
 	showVersion := flag.Bool("v", false, "Show version")
 	showHelp := flag.Bool("h", false, "Show help")
 	all := flag.Bool("a", false, "Show all logs without limit")
-	important := flag.Bool("i", false, "Show only important logs (CRIT, ERRO, WARN)")
-	errorsOnly := flag.Bool("e", false, "Show only errors (CRIT + ERRO)")
+	important := flag.Bool("i", false, "Show only important logs (CRIT, WARN)")
+	errorsOnly := flag.Bool("e", false, "Show only errors (CRIT)")
 
 	defaultLimit := 10    // default number of logs to display
 	limit := defaultLimit // store limit value
@@ -132,13 +132,14 @@ func main() {
 	// -------------------------------
 	if *showHelp {
 		fmt.Printf("#[--- LogWizzy Help ---]#\n%s\n%s\n\nUsage:\n  logwizzy [options]\n\nOptions:\n", versionText, nameText)
-		fmt.Printf("  -s VALUE   Set start time for logs (default: today)\n")
-		fmt.Printf("  -l VALUE   Number of log entries to show (default 10)\n")
-		fmt.Printf("  -v         Show version and exit\n")
-		fmt.Printf("  -h         Show help\n")
-		fmt.Printf("  -a         Show all logs without limit\n")
-		fmt.Printf("  -i         Show only important logs (CRIT, ERRO, WARN)\n")
-		fmt.Printf("  -e         Show only errors (CRIT + ERRO)\n")
+		fmt.Printf("  No option   Show top 10 and error summary\n")
+		fmt.Printf("  -s <value>  Set start time for logs (default: today)\n")
+		fmt.Printf("  -l <value>  Number of log entries to show (default 10)\n")
+		fmt.Printf("  -v          Show version and exit\n")
+		fmt.Printf("  -h          Show help\n")
+		fmt.Printf("  -a          Show all logs without limit\n")
+		fmt.Printf("  -i          Show only important logs (CRIT, WARN)\n")
+		fmt.Printf("  -e          Show only errors (CRIT)\n")
 		return
 	}
 	if *showVersion {
@@ -153,9 +154,9 @@ func main() {
 
 	title := fmt.Sprintf("#[--- LogWizzy Summary (top %d) (since %s) ---]#", limit, *since)
 	if *errorsOnly {
-		title = fmt.Sprintf("#[--- LogWizzy Errors Only (since %s) ---]#", *since)
+		title = fmt.Sprintf("#[--- LogWizzy All Errors Only (since %s) ---]#", *since)
 	} else if *important {
-		title = fmt.Sprintf("#[--- LogWizzy Important Logs (since %s) ---]#", *since)
+		title = fmt.Sprintf("#[--- LogWizzy All Important Logs (since %s) ---]#", *since)
 	} else if *all {
 		title = fmt.Sprintf("#[--- LogWizzy Full Log Dump (since %s) ---]#", *since)
 	}
@@ -263,18 +264,24 @@ func main() {
 	fmt.Printf("\r\033[K") // clear spinner line
 
 	// -------------------------------
-	// Print logs
+	// Print logs mit First/Last Seen
 	// -------------------------------
 	shown := 0
 	errorsList := []*MessageGroup{} // collect errors separately
 
 	for _, g := range list {
+		// sortiere Times um sicherzugehen
+		sort.Slice(g.Times, func(i, j int) bool { return g.Times[i].Before(g.Times[j]) })
+
+		firstSeen := g.Times[0].Format("2006-01-02 15:04:05")
+		lastSeen := g.Times[len(g.Times)-1].Format("2006-01-02 15:04:05")
+
 		// collect errors for additional display at end
 		if g.Level == "CRIT" || g.Level == "ERRO" {
 			errorsList = append(errorsList, g)
 		}
 
-		// filtering for current mode
+		// filtering für aktuelle Mode
 		if *errorsOnly && !(g.Level == "CRIT" || g.Level == "ERRO") {
 			continue
 		}
@@ -288,7 +295,8 @@ func main() {
 		color := colorForLevel(g.Level)
 		reset := "\033[0m"
 		fmt.Printf("%s[%s] %dx %s%s\n", color, g.Level, g.Count, g.Sample, reset)
-		fmt.Printf("---\n")
+		fmt.Printf("\033[37mFirst Seen: %s | Last Seen: %s\n", firstSeen, lastSeen)
+		fmt.Printf("\033[37m---\n")
 		shown++
 	}
 
@@ -297,17 +305,23 @@ func main() {
 	// Only if user did not set -l manually
 	// -------------------------------
 	if !*errorsOnly && !*important && !*all && !limitSet {
-		fmt.Printf("#[--- Additional Errors (since %s) ---]#\n", *since)
+		fmt.Printf("\033[0m#[--- +Additional All Errors (since %s) ---]#\n", *since)
 		for _, g := range list {
 			if g.Level == "CRIT" || g.Level == "ERRO" {
+				// sicherstellen, dass Times sortiert sind
+				sort.Slice(g.Times, func(i, j int) bool { return g.Times[i].Before(g.Times[j]) })
+				firstSeen := g.Times[0].Format("2006-01-02 15:04:05")
+				lastSeen := g.Times[len(g.Times)-1].Format("2006-01-02 15:04:05")
+
 				color := colorForLevel(g.Level)
 				reset := "\033[0m"
 				fmt.Printf("%s[%s] %dx %s%s\n", color, g.Level, g.Count, g.Sample, reset)
-				fmt.Printf("---\n")
+				fmt.Printf("\033[37mFirst Seen: %s | Last Seen: %s\n", firstSeen, lastSeen)
+				fmt.Printf("\033[37m---\n")
 			}
 		}
 	}
 
 	cmd.Wait()
-	fmt.Println("LogWizzy Done!")
+	fmt.Println("\033[0mLogWizzy Done!")
 }
