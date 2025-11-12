@@ -10,3 +10,23 @@
 ✨ LogWizzy — tame your journalctl madness.
 
 LogWizzy aggregates and groups systemd journal logs, highlights severity with colors, counts repeated messages, and optionally shows full logs for quick monitoring.
+
+## 📥 [[Download here]](https://github.com/Knuspii/logwizzy/releases) <- Click here to download LogWizzy!
+
+## ⚙️ Start options:
+```
+Usage:
+  logwizzy [options]
+
+Options:
+  No option   Show top 10 and error summary
+  -s <value>  Set start time for logs (default: today)
+  -l <value>  Number of log entries to show (default 10)
+  -v          Show version and exit
+  -h          Show help
+  -a          Show all logs without limit
+  -i          Show only important logs (CRIT, WARN)
+  -e          Show only errors (CRIT)
+  ```
+
+  
